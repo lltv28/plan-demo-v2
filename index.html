@@ -1,0 +1,3552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Plan Dashboard — Quiz Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --font: 'Instrument Sans', sans-serif;
+      --pelorous-50: rgba(0, 175, 208, 0.06);
+      --pelorous-600: #008ba7;
+      --brand-100: rgba(16, 104, 68, 0.08);
+      --brand-900: rgba(16, 104, 68, 0.8);
+      --light-25: rgba(26, 26, 26, 0.04);
+      --light-50: rgba(26, 26, 26, 0.06);
+      --light-100: rgba(26, 26, 26, 0.09);
+      --light-200: rgba(26, 26, 26, 0.2);
+      --light-600: rgba(26, 26, 26, 0.6);
+      --light-900: rgba(26, 26, 26, 0.8);
+      --dark-800: rgba(255, 255, 255, 0.75);
+      --dark-900: rgba(255, 255, 255, 0.8);
+      --white: #ffffff;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+      --radius-full: 999px;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--white);
+      overflow: hidden;
+    }
+
+    .app-window {
+      width: calc(100vw / 1.2);
+      height: calc(100vh / 1.2);
+      transform: scale(1.2);
+      transform-origin: top left;
+      background: var(--white);
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: clamp(240px, 23vw, 336px);
+      padding: 10px 0 10px 10px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-inner {
+      background: var(--pelorous-50);
+      backdrop-filter: blur(6px);
+      border-radius: var(--radius-md);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .sidebar-top {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 24px 19px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 29px;
+    }
+
+    .window-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      padding: 1px;
+    }
+
+    .window-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 100px;
+      border: 0.5px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .window-dot.close { background: #ff736a; }
+    .window-dot.minimize { background: #febc2e; }
+    .window-dot.zoom { background: #19c332; }
+
+    .sidebar-toggle {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    .agent-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 4px;
+    }
+
+    .agent-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-full);
+      background: url('lucas-avatar.jpg') center/cover no-repeat, #f0f0f0;
+    }
+
+    .agent-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+
+    .sidebar-nav {
+      padding: 8px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 8px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background: rgba(0, 175, 208, 0.06);
+    }
+
+    .nav-item-inner {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      padding: 8px 10px 8px 8px;
+      border-radius: var(--radius-sm);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--light-600);
+    }
+
+    .nav-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-bottom {
+      padding: 8px 0 12px;
+    }
+
+    .sidebar-bottom .nav-item {
+      padding: 0 12px;
+    }
+
+    /* ── Main Content ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .main-bg {
+      position: absolute;
+      bottom: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .bg-ellipse {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+    }
+
+    .bg-ellipse-outer {
+      width: 110%;
+      height: 75%;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(0, 175, 208, 0.07) 0%, transparent 70%);
+    }
+
+    .bg-ellipse-inner {
+      width: 80%;
+      height: 55%;
+      bottom: -39px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(ellipse, rgba(0, 175, 208, 0.09) 0%, transparent 65%);
+    }
+
+    /* ── Top Bar ── */
+    .top-bar {
+      padding: 24px 20px 0;
+      backdrop-filter: blur(4px);
+      background: var(--dark-800);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .top-bar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+    }
+
+    .new-task-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .new-task-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--light-600);
+    }
+
+    .new-task-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+
+    /* ── Content Area ── */
+    .content-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(16px, 2.5vh, 24px);
+      padding-top: clamp(8px, 1.5vh, 20px);
+      position: relative;
+      z-index: 1;
+      overflow-y: auto;
+    }
+
+    .video-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .greeting-text {
+      font-size: clamp(20px, 2.2vw, 32px);
+      font-weight: 400;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+      line-height: 1.25;
+      text-align: center;
+    }
+
+    .plan-video {
+      width: clamp(160px, 22vw, 288px);
+      aspect-ratio: 1 / 1;
+      border-radius: var(--radius-md);
+      background: #f0f0f0;
+      object-fit: cover;
+      border: 1px solid var(--light-100);
+      box-shadow:
+        0 36px 72px rgba(0, 0, 0, 0.2),
+        0 14px 28px rgba(0, 0, 0, 0.12),
+        0 4px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    /* ── Task List ── */
+    .tasks-section {
+      width: clamp(400px, 55vw, 800px);
+    }
+
+    .tasks-card {
+      background: var(--dark-900);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-xl);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      width: 100%;
+    }
+
+    .day-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      line-height: 20px;
+      padding: 16px 16px 6px 20px;
+    }
+
+    .collapsed-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .collapsed-label:hover {
+      color: var(--pelorous-600);
+    }
+
+    .collapse-chevron {
+      transition: transform 0.2s ease;
+      color: var(--light-600);
+    }
+
+    .collapsed-label.open .collapse-chevron {
+      transform: rotate(180deg);
+    }
+
+    .task-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-radius: var(--radius-lg);
+      gap: 16px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .task-row:hover {
+      background: var(--light-25);
+    }
+
+    .task-row.highlighted {
+      background: var(--light-25);
+    }
+
+    .task-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-width: 0;
+    }
+
+    .task-main {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .checkbox {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid var(--light-200);
+      background: #f5f5f5;
+      flex-shrink: 0;
+      margin-top: 2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .checkbox.checked {
+      background: linear-gradient(180deg, #525252, #171717);
+      border-color: rgba(255, 255, 255, 0.09);
+    }
+
+    .checkbox.checked::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 4.5px;
+      width: 5px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 1.5px 1.5px 0;
+      transform: rotate(45deg);
+    }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .task-row.completed .task-title {
+      text-decoration: line-through;
+      color: var(--light-600);
+    }
+
+    .task-description {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      padding-left: 24px;
+    }
+
+    .task-ai-action {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding-left: 24px;
+      margin-top: 2px;
+    }
+
+    .ai-sparkle {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pelorous-600);
+    }
+
+    .ai-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--pelorous-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      cursor: pointer;
+    }
+
+    .ai-label:hover {
+      text-decoration: underline;
+    }
+
+    .task-chevron {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--light-200);
+      transition: color 0.15s ease;
+    }
+
+    .task-row:hover .task-chevron {
+      color: var(--light-600);
+    }
+
+    /* ── Input Bar ── */
+    .input-bar-wrapper {
+      position: absolute;
+      bottom: 19px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: clamp(400px, 55vw, 800px);
+      z-index: 10;
+    }
+
+    .input-bar {
+      width: 100%;
+      height: 48px;
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-full);
+      box-shadow:
+        0 22px 6px 0 rgba(0,0,0,0),
+        0 14px 6px 0 rgba(0,0,0,0),
+        0 8px 5px 0 rgba(0,0,0,0.01),
+        0 4px 4px 0 rgba(0,0,0,0.02),
+        0 1px 2px 0 rgba(0,0,0,0.02);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 5px 5px 13px;
+      position: relative;
+      cursor: text;
+    }
+
+    .input-bar:focus-within {
+      border-color: rgba(0, 175, 208, 0.3);
+      box-shadow:
+        0 0 0 3px rgba(0, 175, 208, 0.08),
+        0 8px 5px 0 rgba(0,0,0,0.01),
+        0 4px 4px 0 rgba(0,0,0,0.02),
+        0 1px 2px 0 rgba(0,0,0,0.02);
+    }
+
+    .input-plus {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--light-600);
+      cursor: pointer;
+    }
+
+    .input-field {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 400;
+      color: #1a1a1a;
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      background: transparent;
+      padding: 0;
+    }
+
+    .input-field::placeholder {
+      color: var(--light-600);
+    }
+
+    .input-tools-group {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      background: var(--neutral-50, #fafafa);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .input-tool {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      color: var(--light-600);
+      transition: background 0.15s ease;
+    }
+
+    .input-tool:hover {
+      background: var(--light-50);
+    }
+
+    .input-tool.mic {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-full);
+      box-shadow:
+        0 8px 5px 0 rgba(0,0,0,0.01),
+        0 4px 4px 0 rgba(0,0,0,0.02),
+        0 1px 2px 0 rgba(0,0,0,0.02);
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+
+    .input-tool.mic.recording {
+      background: var(--pelorous-600);
+      color: var(--white);
+      border-color: var(--pelorous-600);
+      transform: scale(1.04);
+      animation: micPulse 1.2s ease-out infinite;
+    }
+
+    @keyframes micPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(0, 175, 208, 0.45); }
+      70%  { box-shadow: 0 0 0 10px rgba(0, 175, 208, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 175, 208, 0); }
+    }
+
+    .input-bar.recording .input-field {
+      color: var(--pelorous-600);
+      font-style: italic;
+    }
+
+    .input-bar.recording .input-field::placeholder {
+      color: var(--pelorous-600);
+    }
+
+    .listening-indicator {
+      display: none;
+      align-items: center;
+      gap: 3px;
+      position: absolute;
+      left: 40px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--pelorous-600);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.15px;
+    }
+
+    .input-bar.recording .listening-indicator {
+      display: flex;
+    }
+
+    .input-bar.recording .input-field {
+      opacity: 0;
+    }
+
+    .listening-bars {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-right: 6px;
+    }
+    .listening-bars span {
+      display: inline-block;
+      width: 2px;
+      height: 8px;
+      background: var(--pelorous-600);
+      border-radius: 2px;
+      animation: listeningBar 0.9s ease-in-out infinite;
+    }
+    .listening-bars span:nth-child(2) { animation-delay: 0.12s; }
+    .listening-bars span:nth-child(3) { animation-delay: 0.24s; }
+    .listening-bars span:nth-child(4) { animation-delay: 0.36s; }
+    .listening-bars span:nth-child(5) { animation-delay: 0.48s; }
+
+    @keyframes listeningBar {
+      0%, 100% { transform: scaleY(0.4); }
+      50%      { transform: scaleY(1.6); }
+    }
+
+    .input-send {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(26,26,26,0.2) 100%), #ffffff;
+      box-shadow:
+        inset 0 0 3px 0 rgba(26,26,26,0.28),
+        0 2px 1px -1px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+      padding: 0;
+    }
+
+    .input-send:hover {
+      filter: brightness(0.97);
+    }
+
+    .input-send svg {
+      color: var(--light-900);
+    }
+
+    /* ── SVG Icons ── */
+    .icon { display: block; }
+
+    /* ── Animations ── */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .video-section {
+      animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.1s;
+    }
+
+    .tasks-card {
+      animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.25s;
+    }
+
+    .input-bar-wrapper {
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.4s;
+    }
+
+    .task-row {
+      animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .task-row:nth-child(2) { animation-delay: 0.3s; }
+    .task-row:nth-child(3) { animation-delay: 0.37s; }
+    .task-row:nth-child(4) { animation-delay: 0.44s; }
+    .task-row:nth-child(5) { animation-delay: 0.51s; }
+    .task-row:nth-child(6) { animation-delay: 0.58s; }
+    .task-row:nth-child(7) { animation-delay: 0.65s; }
+    .task-row:nth-child(8) { animation-delay: 0.72s; }
+    .task-row:nth-child(9) { animation-delay: 0.79s; }
+
+    /* ── View State ── */
+    .view-hidden { display: none !important; }
+
+    .view-plan {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(16px, 2.5vh, 24px);
+      width: 100%;
+    }
+
+    /* ── Loading View ── */
+    .view-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 360px;
+      gap: 28px;
+      padding: 40px 24px 140px;
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .loading-avatar-wrap {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: var(--radius-full);
+      background: url('lucas-avatar.jpg') center/cover no-repeat, #f0f0f0;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 10px 30px rgba(0, 175, 208, 0.18);
+    }
+
+    .loading-avatar-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 175, 208, 0.25);
+      animation: ringPulse 2.6s ease-out infinite;
+      pointer-events: none;
+    }
+    .loading-avatar-ring:nth-child(2) { animation-delay: 0.85s; }
+    .loading-avatar-ring:nth-child(3) { animation-delay: 1.7s; }
+
+    @keyframes ringPulse {
+      0%   { transform: scale(0.75); opacity: 0.7; }
+      80%  { opacity: 0; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    .loading-heading {
+      font-size: clamp(20px, 2vw, 24px);
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.5px;
+      line-height: 1.3;
+      text-align: center;
+    }
+
+    .loading-card {
+      width: 100%;
+      background: var(--dark-900);
+      border: 1.5px solid var(--light-50);
+      border-radius: 12px;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .loading-steps {
+      display: flex;
+      flex-direction: column;
+      padding-left: 2px;
+    }
+
+    .loading-step {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    }
+
+    .loading-step.visible {
+      max-height: 140px;
+      opacity: 1;
+    }
+
+    .loading-step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+      min-height: 24px;
+    }
+
+    .loading-step-icon {
+      position: relative;
+      width: 24px;
+      height: 20px;
+      flex-shrink: 0;
+      color: var(--pelorous-600);
+    }
+
+    .step-spinner-svg,
+    .step-check-svg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      margin: -8px 0 0 -8px;
+    }
+
+    .step-spinner-svg {
+      animation: spin 0.9s linear infinite;
+      transform-origin: center;
+      /* no transition, vanishes instantly on .done */
+    }
+
+    .step-check-svg {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-step.done .step-spinner-svg { opacity: 0; animation: none; }
+    .loading-step.done .step-check-svg { opacity: 1; }
+
+    .loading-step-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+
+    .loading-step-line {
+      margin-left: 11.5px;
+      width: 1px;
+      height: 0;
+      background: var(--light-100);
+      transition: height 0.35s ease;
+    }
+
+    .loading-step.done .loading-step-line { height: 16px; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Chat View ── */
+    .view-chat {
+      display: flex;
+      flex-direction: column;
+      width: clamp(400px, 55vw, 760px);
+      gap: 0;
+      padding-bottom: 100vh;
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 4px 16px;
+      border-bottom: 1px solid var(--light-50);
+      margin-bottom: 20px;
+    }
+
+    .chat-back {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--light-25);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--light-900);
+      transition: background 0.15s ease;
+      flex-shrink: 0;
+    }
+    .chat-back:hover { background: var(--light-50); }
+
+    .chat-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 22px;
+    }
+
+    .chat-thread {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-msg {
+      display: flex;
+      max-width: 78%;
+      animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+      scroll-margin-top: 16px;
+    }
+    .chat-choices, .chat-progress, .chat-recommendation, .chat-card, .chat-chips, .ad-dashboard, .ad-scripts {
+      scroll-margin-top: 16px;
+      scroll-margin-bottom: 24px;
+    }
+    .chat-msg.agent { align-self: flex-start; }
+    .chat-msg.user  { align-self: flex-end; }
+
+    .chat-bubble {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+
+    .chat-msg.agent .chat-bubble {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--light-50);
+      color: var(--light-900);
+    }
+
+    .chat-msg.user .chat-bubble {
+      background: rgba(0, 175, 208, 0.1);
+      color: #006b82;
+      border: 1px solid rgba(0, 175, 208, 0.18);
+    }
+
+    .chat-msg.agent.video-msg .chat-bubble {
+      padding: 0;
+      background: transparent;
+      border: none;
+      overflow: hidden;
+      border-radius: var(--radius-md);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+    }
+
+    .chat-msg.agent.video-msg .chat-video {
+      display: block;
+      width: 240px;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #000;
+      border-radius: var(--radius-md);
+    }
+
+    .chat-msg.agent.video-caption-first { margin-top: 6px; }
+
+    .chat-typing-wrap .chat-bubble {
+      padding: 14px 16px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .chat-typing-wrap .chat-bubble span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--light-200);
+      animation: typingBounce 1.2s infinite;
+    }
+    .chat-typing-wrap .chat-bubble span:nth-child(2) { animation-delay: 0.15s; }
+    .chat-typing-wrap .chat-bubble span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+      30%           { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .chat-card {
+      align-self: flex-start;
+      max-width: 78%;
+      background: linear-gradient(135deg, rgba(0, 175, 208, 0.08), rgba(16, 104, 68, 0.04));
+      border: 1px solid var(--light-50);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .chat-card-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+    .chat-card-subtitle {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--light-600);
+      margin-top: 4px;
+      letter-spacing: -0.15px;
+    }
+    .chat-card-rows {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .chat-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius-sm);
+      letter-spacing: -0.15px;
+    }
+    .chat-card-row-label { color: var(--light-600); font-weight: 500; }
+    .chat-card-row-value { color: var(--light-900); font-weight: 600; }
+
+    .chat-chips {
+      display: flex;
+      gap: 8px;
+      align-self: flex-start;
+      flex-wrap: wrap;
+      margin-top: 2px;
+      animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .chat-chip {
+      padding: 8px 14px;
+      border-radius: var(--radius-full);
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--light-900);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      letter-spacing: -0.15px;
+    }
+    .chat-chip:hover {
+      background: var(--brand-100);
+      color: var(--brand-900);
+      border-color: rgba(16, 104, 68, 0.15);
+    }
+
+    /* ── Ad dashboard card ── */
+    .ad-dashboard {
+      align-self: flex-start;
+      max-width: 92%;
+      width: 620px;
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .ad-dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .ad-dash-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+    .ad-dash-range {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--light-600);
+      background: var(--light-25);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+    }
+    .ad-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .ad-stat {
+      background: var(--pelorous-50);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ad-stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .ad-stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.3px;
+      line-height: 22px;
+    }
+    .ad-stat-delta {
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .ad-stat-delta.up { color: #0a8f3c; }
+    .ad-stat-delta.down { color: #c4372a; }
+
+    .ad-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .ad-rows-head-row {
+      display: grid;
+      grid-template-columns: 1.5fr 72px 60px 80px 96px;
+      gap: 12px;
+      padding: 2px 0 6px;
+      align-items: center;
+    }
+    .ad-col-head {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--light-600);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      text-align: right;
+    }
+    .ad-col-head.name { text-align: left; }
+    .ad-col-head.status { text-align: left; }
+
+    .ad-row {
+      display: grid;
+      grid-template-columns: 1.5fr 72px 60px 80px 96px;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--light-50);
+    }
+    .ad-row:first-of-type { border-top: none; }
+    .ad-row-num {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--light-900);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.15px;
+    }
+    .ad-row-num.muted {
+      font-weight: 500;
+      color: var(--light-600);
+    }
+    .ad-row-num.cpl.up { color: #c4372a; }
+    .ad-row-num.cpl.down { color: #0a8f3c; }
+    .ad-row-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .ad-row-name-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ad-row-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      justify-self: start;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .ad-row-tag.winner { background: rgba(10, 143, 60, 0.12); color: #0a8f3c; }
+    .ad-row-tag.flat { background: var(--light-50); color: var(--light-600); }
+    .ad-row-tag.fatigued { background: rgba(196, 55, 42, 0.12); color: #c4372a; }
+
+
+    /* ── Ad scripts card ── */
+    .ad-scripts {
+      align-self: flex-start;
+      max-width: 92%;
+      width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .ad-script {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.04);
+    }
+    .ad-script-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .ad-script-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pelorous-600);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .ad-script-angle {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--light-600);
+      background: var(--light-25);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+    }
+    .ad-script-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ad-script-block-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--light-600);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .ad-script-block-text {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-900);
+      line-height: 1.5;
+      letter-spacing: -0.1px;
+      white-space: pre-wrap;
+    }
+    .ad-script-block.cta .ad-script-block-text {
+      color: var(--brand-900);
+      font-weight: 600;
+    }
+
+    /* ── Quiz choice cards (v2) ── */
+    .chat-choices {
+      align-self: flex-start;
+      max-width: 78%;
+      width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+      animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .chat-choice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      cursor: pointer;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .chat-choice:hover {
+      border-color: rgba(0, 175, 208, 0.35);
+      background: rgba(0, 175, 208, 0.03);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 175, 208, 0.08);
+    }
+    .chat-choice.selected {
+      border-color: var(--pelorous-600);
+      background: var(--pelorous-50);
+      color: var(--pelorous-600);
+    }
+    .chat-choice.disabled {
+      opacity: 0.45;
+      cursor: default;
+      pointer-events: none;
+    }
+    .chat-choice-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--light-200);
+      flex-shrink: 0;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+    .chat-choice.selected .chat-choice-dot {
+      border-color: var(--pelorous-600);
+      background: var(--pelorous-600);
+    }
+    .chat-choice.selected .chat-choice-dot::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--white);
+    }
+
+    /* ── In-chat progress card (v2) ── */
+    .chat-progress {
+      align-self: flex-start;
+      max-width: 92%;
+      width: 480px;
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+      animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .chat-progress-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-progress-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: url('lucas-avatar.jpg') center/cover no-repeat, #f0f0f0;
+      flex-shrink: 0;
+    }
+    .chat-progress-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+    .chat-progress-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: var(--light-50);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .chat-progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--pelorous-600), #00b6d4);
+      border-radius: var(--radius-full);
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .chat-progress-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .chat-progress-line {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-progress-line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .chat-progress-line-check {
+      width: 14px;
+      height: 14px;
+      color: var(--pelorous-600);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .chat-progress-line.done .chat-progress-line-check { opacity: 1; }
+    .chat-progress-line.done { color: var(--light-900); }
+
+    /* ── Recommendation card (v2) ── */
+    .chat-recommendation {
+      align-self: flex-start;
+      max-width: 92%;
+      width: 560px;
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+      animation: fadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .rec-score-chip {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      background: var(--pelorous-50);
+      color: var(--pelorous-600);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .rec-score-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pelorous-600);
+    }
+    .rec-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+    .rec-subtitle {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 1.5;
+      margin-top: -12px;
+    }
+    .rec-video-wrap {
+      position: relative;
+      width: 70%;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 1 / 1;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    .rec-video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .rec-chart-wrap {
+      position: relative;
+      width: 100%;
+      padding: 14px 16px 10px;
+      background: var(--pelorous-50);
+      border-radius: 12px;
+      border: 1px solid rgba(0, 175, 208, 0.12);
+    }
+    .rec-chart-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .rec-chart-delta {
+      font-size: 12px;
+      font-weight: 600;
+      color: #0a8f3c;
+      background: rgba(10, 143, 60, 0.12);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+    }
+    .rec-chart-end {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--white);
+      background: var(--pelorous-600);
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+    }
+    .rec-chart-svg {
+      display: block;
+      width: 100%;
+      height: 140px;
+    }
+    .rec-chart-path {
+      fill: none;
+      stroke: var(--pelorous-600);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: drawChart 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .rec-chart-area {
+      fill: url(#chartGradient);
+      opacity: 0;
+      animation: fadeArea 0.6s ease 1.2s forwards;
+    }
+    @keyframes drawChart {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes fadeArea {
+      to { opacity: 1; }
+    }
+    .rec-chart-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+    }
+    .rec-chart-anchor {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--light-900);
+      background: var(--white);
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--light-100);
+    }
+    .rec-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rec-bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+    .rec-bullet-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--pelorous-50);
+      color: var(--pelorous-600);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .rec-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, #00afd0 0%, var(--pelorous-600) 100%);
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.15px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 12px rgba(0, 175, 208, 0.25);
+    }
+    .rec-cta:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 175, 208, 0.35);
+    }
+    .rec-cta:active { transform: translateY(0); }
+
+    /* ── Application modal (v2) ── */
+    .app-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 20, 25, 0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      transition: opacity 0.25s ease;
+    }
+    .app-modal-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .app-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.96);
+      width: min(760px, 92vw);
+      max-height: 88vh;
+      background: #fbfbfc;
+      border: 1px solid var(--light-100);
+      border-radius: 22px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.28), 0 12px 32px rgba(0,0,0,0.16);
+      z-index: 101;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: var(--font);
+    }
+    .app-modal.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    .app-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      color: var(--light-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .app-modal-close:hover {
+      color: var(--light-900);
+      transform: scale(1.06);
+    }
+    .app-modal-scroll {
+      overflow-y: auto;
+      padding: 36px 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .app-modal-scroll::-webkit-scrollbar { width: 8px; }
+    .app-modal-scroll::-webkit-scrollbar-thumb { background: var(--light-100); border-radius: 4px; }
+
+    .app-hero { display: flex; flex-direction: column; gap: 10px; }
+    .app-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pelorous-600);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+    .app-title {
+      font-size: clamp(26px, 3.5vw, 36px);
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.8px;
+      line-height: 1.1;
+    }
+    .app-lede {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.15px;
+      line-height: 22px;
+    }
+
+    .app-video-wrap {
+      align-self: center;
+      width: 60%;
+      max-width: 520px;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+      flex-shrink: 0;
+    }
+    .app-video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .app-block {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .app-block.dark {
+      background: linear-gradient(160deg, #0e1418 0%, #1a2328 100%);
+      color: #ffffff;
+      border-color: rgba(255,255,255,0.08);
+    }
+    .app-block.dark .app-h3 { color: #ffffff; }
+    .app-h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.3px;
+      line-height: 1.25;
+    }
+    .app-p {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 21px;
+      letter-spacing: -0.15px;
+    }
+    .app-p strong { color: var(--light-900); font-weight: 600; }
+    .app-p em { font-style: italic; color: var(--light-900); }
+    .app-block.dark .app-p { color: rgba(255,255,255,0.72); }
+
+    .app-features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .app-feature {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .app-feature-icon { font-size: 22px; line-height: 1; margin-bottom: 6px; }
+    .app-feature-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.15px;
+    }
+    .app-feature-text {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.72);
+      line-height: 19px;
+      letter-spacing: -0.1px;
+    }
+    @media (min-width: 540px) {
+      .app-features { grid-template-columns: 1fr 1fr; }
+    }
+
+    .app-pain {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .app-pain li {
+      position: relative;
+      padding: 12px 14px 12px 38px;
+      background: var(--light-25);
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 20px;
+      letter-spacing: -0.15px;
+    }
+    .app-pain li::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 17px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #c4372a;
+      box-shadow: 0 0 0 3px rgba(196, 55, 42, 0.15);
+    }
+    .app-pain li strong { display: block; color: var(--light-900); font-weight: 600; margin-bottom: 2px; }
+
+    .app-product {
+      background: linear-gradient(160deg, rgba(0, 175, 208, 0.06), rgba(0, 139, 167, 0.02));
+      border: 1.5px solid rgba(0, 175, 208, 0.2);
+      border-radius: 18px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .app-product-badge {
+      align-self: flex-start;
+      display: inline-flex;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pelorous-600);
+      background: var(--white);
+      border-radius: var(--radius-full);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid var(--light-100);
+    }
+    .app-product-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+    .app-product-sub {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 21px;
+      letter-spacing: -0.15px;
+    }
+    .app-product-price {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .app-product-price-num {
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--light-900);
+      letter-spacing: -1px;
+    }
+    .app-product-price-unit {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-600);
+    }
+    .app-product-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .app-product-list li {
+      position: relative;
+      padding-left: 24px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-900);
+      line-height: 20px;
+      letter-spacing: -0.15px;
+    }
+    .app-product-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 5px;
+      width: 14px;
+      height: 10px;
+      border-left: 2px solid var(--pelorous-600);
+      border-bottom: 2px solid var(--pelorous-600);
+      transform: rotate(-45deg);
+    }
+
+    .app-compare {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .app-compare-card {
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid var(--light-100);
+    }
+    .app-compare-card.bad {
+      background: rgba(196, 55, 42, 0.04);
+      border-color: rgba(196, 55, 42, 0.18);
+    }
+    .app-compare-card.good {
+      background: rgba(0, 139, 167, 0.05);
+      border-color: rgba(0, 139, 167, 0.22);
+    }
+    .app-compare-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      margin-bottom: 10px;
+    }
+    .app-compare-card.bad .app-compare-label { color: #c4372a; background: rgba(196, 55, 42, 0.12); }
+    .app-compare-card.good .app-compare-label { color: var(--pelorous-600); background: rgba(0, 139, 167, 0.12); }
+    .app-compare-card ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+    .app-compare-card li {
+      position: relative;
+      padding-left: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 19px;
+      letter-spacing: -0.15px;
+    }
+    .app-compare-card.bad li::before { content: '×'; position: absolute; left: 0; top: -1px; font-size: 16px; font-weight: 700; color: #c4372a; }
+    .app-compare-card.good li::before { content: '✓'; position: absolute; left: 0; top: 0; font-size: 12px; font-weight: 700; color: var(--pelorous-600); }
+    @media (min-width: 540px) { .app-compare { grid-template-columns: 1fr 1fr; } }
+
+    .app-faq {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .app-faq-item {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .app-faq-q {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+    }
+    .app-faq-q svg {
+      color: var(--light-600);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .app-faq-item.open .app-faq-q svg { transform: rotate(180deg); }
+    .app-faq-a {
+      max-height: 0;
+      padding: 0 16px;
+      overflow: hidden;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 20px;
+      letter-spacing: -0.15px;
+      transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), padding 0.25s ease;
+    }
+    .app-faq-item.open .app-faq-a {
+      max-height: 260px;
+      padding: 0 16px 14px;
+    }
+
+    .app-review {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .app-review-stars {
+      display: flex;
+      gap: 2px;
+      color: #f3b800;
+    }
+    .app-review-text {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-900);
+      line-height: 20px;
+      letter-spacing: -0.15px;
+      font-style: italic;
+    }
+    .app-review-author {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--light-600);
+      letter-spacing: -0.1px;
+    }
+
+    .app-guarantee {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-left: 4px solid var(--pelorous-600);
+    }
+    .app-guarantee-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.2px;
+    }
+    .app-guarantee-body {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 20px;
+      letter-spacing: -0.15px;
+    }
+
+    .app-form {
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: 18px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .app-form-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.3px;
+    }
+    .app-form-sub {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--light-600);
+      line-height: 20px;
+      letter-spacing: -0.15px;
+      margin-top: -6px;
+    }
+    .app-form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    @media (min-width: 540px) { .app-form-row.two { grid-template-columns: 1fr 1fr; } }
+    .app-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .app-form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--light-900);
+      letter-spacing: -0.1px;
+    }
+    .app-form-input, .app-form-select, .app-form-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--white);
+      border: 1px solid var(--light-100);
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--light-900);
+      letter-spacing: -0.15px;
+      line-height: 20px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .app-form-input:focus, .app-form-select:focus, .app-form-textarea:focus {
+      border-color: var(--pelorous-600);
+      box-shadow: 0 0 0 3px rgba(0, 175, 208, 0.12);
+    }
+    .app-form-textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+    .app-submit {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(180deg, #00afd0 0%, var(--pelorous-600) 100%);
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.15px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 4px 12px rgba(0, 175, 208, 0.22);
+    }
+    .app-submit:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 175, 208, 0.32);
+    }
+    .app-secure {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--light-600);
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-window">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-top">
+          <div class="sidebar-header">
+            <div class="window-bar">
+              <div class="window-controls">
+              </div>
+              <div class="sidebar-toggle">
+                <svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="0.5" y="0.5" width="15" height="13" rx="2.5" stroke="currentColor"/>
+                  <line x1="5.5" y1="0.5" x2="5.5" y2="13.5" stroke="currentColor"/>
+                </svg>
+              </div>
+            </div>
+            <div class="agent-info">
+              <div class="agent-avatar"></div>
+              <span class="agent-name">Lucas AI</span>
+            </div>
+          </div>
+          <div class="sidebar-nav">
+            <div class="nav-item">
+              <div class="nav-item-inner">
+                <div class="nav-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M13.5 2.5L16.5 5.5M2.5 17.5L3.2 14.3L14.5 3L17 5.5L5.7 16.8L2.5 17.5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 2L18 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                    <circle cx="17" cy="5" r="1.5" fill="currentColor" opacity="0.4"/>
+                  </svg>
+                </div>
+                <span class="nav-label">New chat</span>
+              </div>
+            </div>
+            <div class="nav-item">
+              <div class="nav-item-inner">
+                <div class="nav-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 5C4 3.89543 4.89543 3 6 3H14C15.1046 3 16 3.89543 16 5V12C16 13.1046 15.1046 14 14 14H8L5 17V14H6H4V5Z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="14.5" cy="5.5" r="2" fill="currentColor" opacity="0.4"/>
+                    <circle cx="7.5" cy="8.5" r="0.75" fill="currentColor"/>
+                    <circle cx="10" cy="8.5" r="0.75" fill="currentColor"/>
+                    <circle cx="12.5" cy="8.5" r="0.75" fill="currentColor"/>
+                  </svg>
+                </div>
+                <span class="nav-label">My chats</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-bottom">
+          <div class="nav-item">
+            <div class="nav-item-inner">
+              <div class="nav-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 12.5C11.3807 12.5 12.5 11.3807 12.5 10C12.5 8.61929 11.3807 7.5 10 7.5C8.61929 7.5 7.5 8.61929 7.5 10C7.5 11.3807 8.61929 12.5 10 12.5Z" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M16.2 12.2C16.0513 12.5344 16.0159 12.9082 16.0993 13.2645C16.1826 13.6209 16.3802 13.9407 16.66 14.18L16.72 14.24C16.9445 14.4644 17.1228 14.731 17.2447 15.0243C17.3665 15.3175 17.4294 15.6316 17.4294 15.9488C17.4294 16.266 17.3665 16.5801 17.2447 16.8733C17.1228 17.1666 16.9445 17.4332 16.72 17.6576C16.4956 17.8821 16.229 18.0604 15.9358 18.1823C15.6425 18.3041 15.3284 18.367 15.0112 18.367C14.694 18.367 14.3799 18.3041 14.0867 18.1823C13.7934 18.0604 13.5268 17.8821 13.3024 17.6576L13.2424 17.5976C13.0031 17.3178 12.6833 17.1202 12.327 17.0369C11.9706 16.9535 11.5969 16.9889 11.2624 17.1376C10.9345 17.2793 10.6554 17.5142 10.4595 17.8129C10.2636 18.1117 10.1597 18.4614 10.1624 18.8176V19C10.1624 19.6395 9.90821 20.2528 9.45587 20.7051C9.00354 21.1575 8.39024 21.4117 7.75071 21.4117C7.11118 21.4117 6.49789 21.1575 6.04555 20.7051C5.59322 20.2528 5.339 19.6395 5.339 19V18.92C5.32855 18.5529 5.21103 18.1965 4.9997 17.8964C4.78837 17.5963 4.49349 17.3665 4.15071 17.2376C3.81625 17.0889 3.44252 17.0535 3.08613 17.1369C2.72975 17.2202 2.41 17.4178 2.17071 17.6976L2.11071 17.7576C1.88633 17.9821 1.61973 18.1604 1.32647 18.2823C1.03321 18.4041 0.719141 18.467 0.401929 18.467C0.0847158 18.467 -0.229358 18.4041 -0.522619 18.2823C-0.81588 18.1604 -1.08248 17.9821 -1.30686 17.7576" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" transform="translate(2,-1) scale(0.85)"/>
+                </svg>
+              </div>
+              <span class="nav-label">Settings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="main-bg">
+        <div class="bg-ellipse bg-ellipse-outer"></div>
+        <div class="bg-ellipse bg-ellipse-inner"></div>
+      </div>
+
+
+      <div class="content-area">
+        <div class="view-plan">
+        <div class="video-section">
+          <video class="plan-video" src="hero-video.mp4" muted playsinline preload="auto" data-freeze-time="20.1">
+            Your browser does not support the video tag.
+          </video>
+          <h1 class="greeting-text">Hey there, let's dive back into work.</h1>
+        </div>
+
+        <div class="tasks-section">
+          <div class="tasks-card">
+            <div class="day-label">Today</div>
+
+            <div class="task-row highlighted" data-task="1">
+              <div class="task-content">
+                <div class="task-main">
+                  <div class="checkbox" data-checkbox></div>
+                  <span class="task-title">Refresh your ads before they stop converting</span>
+                </div>
+                <div class="task-ai-action">
+                  <div class="ai-sparkle">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.5 6L14 8L9.5 10L8 15L6.5 10L2 8L6.5 6L8 1Z" fill="currentColor"/></svg>
+                  </div>
+                  <span class="ai-label">Ask AI to do it</span>
+                </div>
+              </div>
+              <div class="task-chevron">
+                <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+
+            <div class="day-label">Tomorrow</div>
+
+            <div class="task-row" data-task="2">
+              <div class="task-content">
+                <div class="task-main">
+                  <div class="checkbox" data-checkbox></div>
+                  <span class="task-title">Identify Your Most Profitable Offer</span>
+                </div>
+                <div class="task-ai-action">
+                  <div class="ai-sparkle">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L9.5 6L14 8L9.5 10L8 15L6.5 10L2 8L6.5 6L8 1Z" fill="currentColor"/></svg>
+                  </div>
+                  <span class="ai-label">Ask AI to do it</span>
+                </div>
+              </div>
+              <div class="task-chevron">
+                <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+
+            <div class="task-row" data-task="3">
+              <div class="task-content">
+                <div class="task-main">
+                  <div class="checkbox" data-checkbox></div>
+                  <span class="task-title">Leverage Customer Feedback to Improve Sales</span>
+                </div>
+                <span class="task-description">Interactive &middot; Growth-focused</span>
+              </div>
+              <div class="task-chevron">
+                <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+
+            <div class="day-label collapsed-label" data-toggle="next-week">
+              <span>Next Week</span>
+              <svg class="collapse-chevron" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <div class="collapsed-group" id="next-week" style="display:none;">
+              <div class="task-row" data-task="4">
+                <div class="task-content">
+                  <div class="task-main">
+                    <div class="checkbox" data-checkbox></div>
+                    <span class="task-title">Optimize Your Pricing Strategy for Maximum ROI</span>
+                  </div>
+                  <span class="task-description">Analytical &middot; Strategic</span>
+                </div>
+                <div class="task-chevron">
+                  <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+
+              <div class="task-row" data-task="5">
+                <div class="task-content">
+                  <div class="task-main">
+                    <div class="checkbox" data-checkbox></div>
+                    <span class="task-title">Craft Irresistible Upsell and Cross-sell Offers</span>
+                  </div>
+                  <span class="task-description">Creative &middot; Revenue-boosting</span>
+                </div>
+                <div class="task-chevron">
+                  <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div><!-- /.view-plan -->
+
+        <!-- Loading View -->
+        <div class="view-loading view-hidden" data-view="loading">
+          <div class="loading-avatar-wrap">
+            <div class="loading-avatar-ring"></div>
+            <div class="loading-avatar-ring"></div>
+            <div class="loading-avatar-ring"></div>
+            <div class="loading-avatar"></div>
+          </div>
+          <h2 class="loading-heading">Lucas AI is working...</h2>
+          <div class="loading-card">
+            <div class="loading-steps"></div>
+          </div>
+        </div>
+
+        <!-- Chat View -->
+        <div class="view-chat view-hidden" data-view="chat">
+          <div class="chat-header">
+            <button class="chat-back" aria-label="Back to plan" type="button">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M9 1L3 7L9 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <span class="chat-title">Task</span>
+          </div>
+          <div class="chat-thread"></div>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="input-bar-wrapper">
+        <div class="input-bar">
+          <div class="input-plus">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1V12M1 6.5H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <input class="input-field" type="text" placeholder="Describe how your mentor can help you today...">
+          <div class="listening-indicator">
+            <span class="listening-bars"><span></span><span></span><span></span><span></span><span></span></span>
+            <span>Listening...</span>
+          </div>
+          <div class="input-tools-group">
+            <button class="input-tool dots" type="button" aria-label="More options">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="3.5" cy="8" r="1.25" fill="currentColor"/><circle cx="8" cy="8" r="1.25" fill="currentColor"/><circle cx="12.5" cy="8" r="1.25" fill="currentColor"/></svg>
+            </button>
+            <button class="input-tool mic" type="button" aria-label="Voice input">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="6" y="2" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M3.5 8.5C3.5 10.9853 5.51472 13 8 13C10.4853 13 12.5 10.9853 12.5 8.5M8 13V15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <button class="input-send" type="button" aria-label="Send">
+            <svg width="10" height="14" viewBox="0 0 10 14" fill="none"><path d="M5 13V1M1 5L5 1L9 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Freeze plan-video on a specific frame ──
+    document.querySelectorAll('.plan-video[data-freeze-time]').forEach(v => {
+      const t = parseFloat(v.dataset.freezeTime) || 0;
+      const freeze = () => {
+        try {
+          v.currentTime = t;
+          v.pause();
+        } catch (_) { /* seek may fail before metadata */ }
+      };
+      if (v.readyState >= 1) freeze();
+      else v.addEventListener('loadedmetadata', freeze, { once: true });
+      v.addEventListener('seeked', () => v.pause(), { once: true });
+    });
+
+    // ── Existing: checkbox + collapse ──
+    document.querySelectorAll('[data-checkbox]').forEach(cb => {
+      cb.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cb.classList.toggle('checked');
+        const row = cb.closest('.task-row');
+        row.classList.toggle('completed');
+      });
+    });
+
+    document.querySelectorAll('[data-toggle]').forEach(label => {
+      label.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const targetId = label.getAttribute('data-toggle');
+        const group = document.getElementById(targetId);
+        label.classList.toggle('open');
+        group.style.display = group.style.display === 'none' ? '' : 'none';
+      });
+    });
+
+    // ── Task flow data ──
+    // Per-step durations: faster pull, slower analysis, slower synthesis, quick finish
+    const LOADING_STAGE_DURATIONS = [700, 800, 1800, 1400];
+    const LOADING_TRAIL_MS = 400;    // buffer after last step before chat
+
+    const TASKS = {
+      '1': {
+        title: 'Refresh your ads before they stop converting',
+        loadingHeading: 'Lucas AI is pulling your ad account...',
+        loadingBubbles: [
+          "Pulling your ad account from the last 90 days.",
+          "Opening a quick strategy session."
+        ],
+        scripted: true,
+        script: [
+          { type: 'agent', text: "Hey there. Before I rebuild your ad strategy I want to ask you a few things so the plan fits where you're at." },
+          { type: 'agent_typing', duration: 900 },
+          { type: 'choice',
+            question: "What's happening with your ads right now?",
+            mode: 'single',
+            options: [
+              "CPL is creeping up and I can't tell why",
+              "My winners stopped winning",
+              "I keep launching new creative but nothing sticks",
+              "Results are inconsistent week to week"
+            ]
+          },
+          { type: 'agent_typing', duration: 900 },
+          { type: 'agent', text: "Got it. That tracks with what I'm seeing in your account." },
+          { type: 'choice',
+            question: "How much are you spending on Meta each month right now?",
+            mode: 'single',
+            options: [
+              "Under $2K",
+              "$2K to $5K",
+              "$5K to $10K",
+              "$10K or more"
+            ]
+          },
+          { type: 'agent_typing', duration: 900 },
+          { type: 'agent', text: "Helpful. Last one, and this one's open ended." },
+          { type: 'agent', text: "In your own words, what does a real win look like for you in the next 90 days? A sentence or two is plenty." },
+          { type: 'user_input', placeholder: "Type your answer..." },
+          { type: 'agent_typing', duration: 1200 },
+          { type: 'agent', text: "Okay, that's everything I need. Give me a second to build it." },
+          { type: 'progress_card',
+            title: 'Lucas is building your ad refresh plan...',
+            totalMs: 3800,
+            lines: [
+              "Scoring your 4 live ads for fatigue signals",
+              "Matching your answers to 14,382 similar coach accounts",
+              "Picking the angles most likely to replace your top performer",
+              "Finalizing a 90-day refresh cadence"
+            ]
+          },
+          { type: 'agent_typing', duration: 800 },
+          { type: 'agent', text: "Here's what I'd run for you." },
+          { type: 'recommendation',
+            scoreChip: 'Ad engine score: 62 / 100 · fatigue risk',
+            title: 'Your 90-day ad refresh plan',
+            subtitle: 'Projected CPL reduction over the next 12 weeks based on your answers and your top-performing angles.',
+            videoSrc: 'lucas-ai-1.mp4',
+            deltaLabel: '−28% CPL',
+            endLabel: '12 weeks',
+            bullets: [
+              'Rotate in 3 new creative angles (Sandra remix, Founder story, Pattern interrupt)',
+              'Replace fatigued Webinar promo v2 with fresh hook variants',
+              'Lock in your CPL floor with the Sandra testimonial as always-on',
+              'Automated weekly fatigue monitor + refresh triggers'
+            ],
+            ctaLabel: 'Start my plan',
+            ctaOpenModal: true
+          }
+        ]
+      },
+      '2': {
+        title: 'Identify Your Most Profitable Offer',
+        loadingHeading: 'Lucas AI is analyzing your offers...',
+        loadingBubbles: [
+          "Pulling your offer mix and 30-day revenue.",
+          "Running margin analysis on each offer.",
+          "Scoring offers by revenue per hour of delivery.",
+          "Ranking winners and flagging underperformers."
+        ],
+        scripted: false,
+        opening: "I want to figure out which of your offers is making you the most money. What are the top two or three offers you're selling right now?"
+      },
+      '3': {
+        title: 'Leverage Customer Feedback to Improve Sales',
+        loadingHeading: 'Lucas AI is reviewing your customer signals...',
+        loadingBubbles: [
+          "Pulling recent reviews, DMs, and survey responses.",
+          "Extracting themes from your customers' language.",
+          "Mapping pain points to positioning and pricing moves.",
+          "Preparing your customer-insight playbook."
+        ],
+        scripted: false,
+        opening: "Your customers will hand you the playbook if you listen right. Paste in two or three recent reviews, DMs, or survey responses and I'll pull out the threads."
+      },
+      '4': {
+        title: 'Optimize Your Pricing Strategy for Maximum ROI',
+        loadingHeading: 'Lucas AI is optimizing your pricing...',
+        loadingBubbles: [
+          "Pulling current pricing, conversions, and AOV.",
+          "Running price-elasticity scenarios across your offers.",
+          "Benchmarking against coaches in your vertical.",
+          "Building your optimized pricing recommendations."
+        ],
+        scripted: false,
+        opening: "Time to sharpen your pricing. Pick one offer. What is it, and what's the current price?"
+      },
+      '5': {
+        title: 'Craft Irresistible Upsell and Cross-sell Offers',
+        loadingHeading: 'Lucas AI is crafting your upsell strategy...',
+        loadingBubbles: [
+          "Pulling your product catalog and purchase sequences.",
+          "Mapping what customers buy next and when.",
+          "Scoring upsell angles by fit, friction, and AOV lift.",
+          "Drafting your top upsell plays."
+        ],
+        scripted: false,
+        opening: "I want to build upsells that convert. Start with your most popular product. What is it, and what's an obvious next-step customers already ask about?"
+      }
+    };
+
+    // ── View elements ──
+    const viewPlan = document.querySelector('.view-plan');
+    const viewLoading = document.querySelector('.view-loading');
+    const viewChat = document.querySelector('.view-chat');
+    const loadingHeading = viewLoading.querySelector('.loading-heading');
+    const loadingSteps = viewLoading.querySelector('.loading-steps');
+    const chatTitle = viewChat.querySelector('.chat-title');
+    const chatThread = viewChat.querySelector('.chat-thread');
+    const inputField = document.querySelector('.input-field');
+    const contentArea = document.querySelector('.content-area');
+    const DEFAULT_PLACEHOLDER = inputField.placeholder;
+
+    // ── Script runner state ──
+    let activeScript = null;
+    let scriptIndex = 0;
+    let awaitingInput = false;
+    let scrollNextAgentToTop = false;
+    let pinnedFrame = false;
+    let inScriptedFlow = false;
+
+    function setView(name) {
+      [viewPlan, viewLoading, viewChat].forEach(v => v.classList.add('view-hidden'));
+      const target = name === 'plan' ? viewPlan : name === 'loading' ? viewLoading : viewChat;
+      target.classList.remove('view-hidden');
+    }
+
+    let loadingTimers = [];
+
+    function clearLoadingTimers() {
+      loadingTimers.forEach(t => clearTimeout(t));
+      loadingTimers = [];
+    }
+
+    function buildStep(text, isLast) {
+      const step = document.createElement('div');
+      step.className = 'loading-step';
+      step.innerHTML = `
+        <div class="loading-step-row">
+          <div class="loading-step-icon">
+            <svg class="step-spinner-svg" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="9 28"/>
+            </svg>
+            <svg class="step-check-svg" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 6L5 10L13 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="loading-step-text"></div>
+        </div>
+        ${isLast ? '' : '<div class="loading-step-line"></div>'}
+      `;
+      step.querySelector('.loading-step-text').textContent = text;
+      return step;
+    }
+
+    function startTask(taskId) {
+      const task = TASKS[taskId];
+      if (!task) return;
+
+      clearLoadingTimers();
+      loadingHeading.textContent = task.loadingHeading;
+      loadingSteps.innerHTML = '';
+
+      const stepEls = task.loadingBubbles.map((text, i) => {
+        const isLast = i === task.loadingBubbles.length - 1;
+        const el = buildStep(text, isLast);
+        loadingSteps.appendChild(el);
+        return el;
+      });
+
+      setView('loading');
+      contentArea.scrollTop = 0;
+
+      // Reveal first step after a tick so the max-height transition plays
+      loadingTimers.push(setTimeout(() => {
+        stepEls[0].classList.add('visible');
+      }, 60));
+
+      // Sequence: each step has its own duration, then completes and reveals next
+      let elapsed = 0;
+      for (let i = 0; i < stepEls.length; i++) {
+        elapsed += LOADING_STAGE_DURATIONS[i] || 3000;
+        const idx = i;
+        loadingTimers.push(setTimeout(() => {
+          stepEls[idx].classList.add('done');
+          if (idx + 1 < stepEls.length) {
+            stepEls[idx + 1].classList.add('visible');
+          }
+        }, elapsed));
+      }
+
+      // After last step done, transition to chat
+      loadingTimers.push(setTimeout(() => enterChat(task), elapsed + LOADING_TRAIL_MS));
+    }
+
+    function enterChat(task) {
+      chatTitle.textContent = task.title;
+      chatThread.innerHTML = '';
+      setView('chat');
+      contentArea.scrollTop = 0;
+      inputField.placeholder = 'Message your coach...';
+      activeScript = null;
+      scriptIndex = 0;
+      awaitingInput = false;
+      inScriptedFlow = !!task.scripted;
+
+      if (task.scripted) {
+        activeScript = task.script;
+        // Brief typing pause, then first step
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          runStep();
+        }, 900);
+      } else {
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          addAgentMsg(task.opening);
+          setTimeout(() => inputField.focus(), 150);
+        }, 900);
+      }
+    }
+
+    function runStep() {
+      if (!activeScript || scriptIndex >= activeScript.length) return;
+      const step = activeScript[scriptIndex];
+
+      if (step.type === 'agent') {
+        addAgentMsg(step.text);
+        scriptIndex++;
+        setTimeout(runStep, 420);
+      } else if (step.type === 'agent_video') {
+        addAgentVideo(step.src, step.paragraphs);
+        scriptIndex++;
+        setTimeout(runStep, 520);
+      } else if (step.type === 'user_input') {
+        awaitingInput = true;
+        if (step.placeholder) inputField.placeholder = step.placeholder;
+        setTimeout(() => inputField.focus(), 120);
+        // advances when input is submitted
+      } else if (step.type === 'agent_typing') {
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          scriptIndex++;
+          runStep();
+        }, step.duration);
+      } else if (step.type === 'data_card') {
+        addDataCard(step);
+        scriptIndex++;
+        setTimeout(runStep, 520);
+      } else if (step.type === 'ad_dashboard') {
+        addAdDashboard(step);
+        scriptIndex++;
+        setTimeout(runStep, 720);
+      } else if (step.type === 'ad_scripts') {
+        addAdScripts(step);
+        scriptIndex++;
+        setTimeout(runStep, 720);
+      } else if (step.type === 'chips') {
+        addChips(step.options, (pickedLabel) => {
+          addUserMsg(pickedLabel);
+          scriptIndex++;
+          setTimeout(runStep, 360);
+        });
+        // advances from chip click callback
+      } else if (step.type === 'choice') {
+        addAgentMsg(step.question);
+        setTimeout(() => {
+          addChoices(step.options, (pickedLabel) => {
+            addUserMsg(pickedLabel);
+            scriptIndex++;
+            setTimeout(runStep, 420);
+          });
+        }, 360);
+        // advances from choice click callback
+      } else if (step.type === 'progress_card') {
+        addProgressCard(step, () => {
+          scriptIndex++;
+          setTimeout(runStep, 500);
+        });
+        // advances from progress_card completion callback
+      } else if (step.type === 'recommendation') {
+        addRecommendation(step);
+        scriptIndex++;
+        setTimeout(runStep, 900);
+      }
+    }
+
+    // ── Message helpers ──
+    function addAgentMsg(text) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg agent';
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = text;
+      msg.appendChild(bubble);
+      chatThread.appendChild(msg);
+      if (scrollNextAgentToTop) {
+        scrollNextAgentToTop = false;
+        pinnedFrame = true;
+        scrollElementToTop(msg);
+      } else if (pinnedFrame) {
+        // pin holds; let content grow below
+      } else {
+        scrollChat();
+      }
+    }
+
+    function addAgentVideo(src, paragraphs) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg agent video-msg';
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      const video = document.createElement('video');
+      video.className = 'chat-video';
+      video.preload = 'auto';
+      video.autoplay = true;
+      video.muted = false;
+      video.loop = false;
+      video.playsInline = true;
+      video.controls = false;
+      video.disablePictureInPicture = true;
+      video.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+      bubble.appendChild(video);
+      msg.appendChild(bubble);
+      chatThread.appendChild(msg);
+
+      if (paragraphs && paragraphs.length) {
+        let revealed = 0;
+        video.addEventListener('timeupdate', () => {
+          while (revealed < paragraphs.length && video.currentTime >= paragraphs[revealed].start) {
+            const pMsg = document.createElement('div');
+            pMsg.className = 'chat-msg agent video-caption-msg';
+            if (revealed === 0) pMsg.classList.add('video-caption-first');
+            const pBubble = document.createElement('div');
+            pBubble.className = 'chat-bubble';
+            pBubble.textContent = paragraphs[revealed].text;
+            pMsg.appendChild(pBubble);
+            chatThread.appendChild(pMsg);
+            revealed++;
+            scrollChat();
+          }
+        });
+      }
+
+      scrollChat();
+      video.addEventListener('error', () => {
+        console.warn('video failed to load', src, video.error);
+      });
+      video.src = src + '?v=' + Date.now();
+      const tryPlay = () => {
+        const p = video.play();
+        if (p && typeof p.catch === 'function') {
+          p.catch(() => {
+            video.muted = true;
+            video.play().catch(err => console.warn('video play blocked', src, err));
+          });
+        }
+      };
+      if (video.readyState >= 2) tryPlay();
+      else video.addEventListener('loadeddata', tryPlay, { once: true });
+    }
+
+    function addUserMsg(text) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg user';
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble';
+      bubble.textContent = text;
+      msg.appendChild(bubble);
+      chatThread.appendChild(msg);
+      pinnedFrame = false;
+      // Bring the user bubble into view if hidden, but don't jump to the bottom of the padded thread
+      scrollIntoViewIfNeeded(msg);
+      scrollNextAgentToTop = true;
+    }
+
+    function showTyping() {
+      if (chatThread.querySelector('.chat-typing-wrap')) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-msg agent chat-typing-wrap';
+      wrap.innerHTML = '<div class="chat-bubble"><span></span><span></span><span></span></div>';
+      chatThread.appendChild(wrap);
+      // Typing indicator never triggers the pin — we wait for the real AI message.
+      // Just make sure it's visible if it would otherwise be below the fold.
+      if (!pinnedFrame) scrollIntoViewIfNeeded(wrap);
+    }
+
+    function hideTyping() {
+      const t = chatThread.querySelector('.chat-typing-wrap');
+      if (t) t.remove();
+    }
+
+    function addDataCard(step) {
+      const c = document.createElement('div');
+      c.className = 'chat-card';
+      const rowsHtml = (step.rows || []).map(r =>
+        `<div class="chat-card-row"><span class="chat-card-row-label"></span><span class="chat-card-row-value"></span></div>`
+      ).join('');
+      c.innerHTML = `
+        <div class="chat-card-title"></div>
+        ${step.subtitle ? '<div class="chat-card-subtitle"></div>' : ''}
+        <div class="chat-card-rows">${rowsHtml}</div>
+      `;
+      c.querySelector('.chat-card-title').textContent = step.title || '';
+      if (step.subtitle) c.querySelector('.chat-card-subtitle').textContent = step.subtitle;
+      const rowEls = c.querySelectorAll('.chat-card-row');
+      (step.rows || []).forEach((r, i) => {
+        rowEls[i].querySelector('.chat-card-row-label').textContent = r.label;
+        rowEls[i].querySelector('.chat-card-row-value').textContent = r.value;
+      });
+      chatThread.appendChild(c);
+      scrollChat();
+    }
+
+    function addAdDashboard(step) {
+      const wrap = document.createElement('div');
+      wrap.className = 'ad-dashboard';
+      const stats = (step.stats || []).map(s => `
+        <div class="ad-stat">
+          <span class="ad-stat-label"></span>
+          <span class="ad-stat-value"></span>
+          ${s.delta ? `<span class="ad-stat-delta ${s.deltaDir || 'up'}"></span>` : ''}
+        </div>
+      `).join('');
+      const rowsHtml = (step.ads || []).map(a => {
+        const status = a.status || 'flat';
+        return `
+          <div class="ad-row">
+            <div class="ad-row-name">
+              <span class="ad-row-name-text"></span>
+            </div>
+            <div class="ad-row-num cpl"></div>
+            <div class="ad-row-num muted leads"></div>
+            <div class="ad-row-num muted spend"></div>
+            <span class="ad-row-tag ${status}"></span>
+          </div>
+        `;
+      }).join('');
+      wrap.innerHTML = `
+        <div class="ad-dash-header">
+          <span class="ad-dash-title"></span>
+          ${step.range ? '<span class="ad-dash-range"></span>' : ''}
+        </div>
+        <div class="ad-stats-grid">${stats}</div>
+        <div class="ad-rows">
+          <div class="ad-rows-head-row">
+            <span class="ad-col-head name">Ad</span>
+            <span class="ad-col-head">CPL</span>
+            <span class="ad-col-head">Leads</span>
+            <span class="ad-col-head">Spend</span>
+            <span class="ad-col-head status">Status</span>
+          </div>
+          ${rowsHtml}
+        </div>
+      `;
+      wrap.querySelector('.ad-dash-title').textContent = step.title || '';
+      if (step.range) wrap.querySelector('.ad-dash-range').textContent = step.range;
+      const statEls = wrap.querySelectorAll('.ad-stat');
+      (step.stats || []).forEach((s, i) => {
+        statEls[i].querySelector('.ad-stat-label').textContent = s.label;
+        statEls[i].querySelector('.ad-stat-value').textContent = s.value;
+        if (s.delta) statEls[i].querySelector('.ad-stat-delta').textContent = s.delta;
+      });
+      const rowEls = wrap.querySelectorAll('.ad-row');
+      (step.ads || []).forEach((a, i) => {
+        const status = a.status || 'flat';
+        rowEls[i].querySelector('.ad-row-name-text').textContent = a.name;
+        const cplEl = rowEls[i].querySelector('.cpl');
+        cplEl.textContent = a.cpl;
+        cplEl.classList.add(status === 'fatigued' ? 'up' : status === 'winner' ? 'down' : 'flat');
+        rowEls[i].querySelector('.leads').textContent = a.leads != null ? a.leads : '';
+        rowEls[i].querySelector('.spend').textContent = a.spend || '';
+        const displayTag = status === 'fatigued' ? 'Fatigued ↑' : status;
+        rowEls[i].querySelector('.ad-row-tag').textContent = displayTag;
+      });
+      chatThread.appendChild(wrap);
+      scrollChat();
+    }
+
+    function addAdScripts(step) {
+      const wrap = document.createElement('div');
+      wrap.className = 'ad-scripts';
+      (step.scripts || []).forEach((s, i) => {
+        const card = document.createElement('div');
+        card.className = 'ad-script';
+        card.innerHTML = `
+          <div class="ad-script-head">
+            <span class="ad-script-label"></span>
+            ${s.angle ? '<span class="ad-script-angle"></span>' : ''}
+          </div>
+          <div class="ad-script-block">
+            <span class="ad-script-block-label">Hook</span>
+            <span class="ad-script-block-text"></span>
+          </div>
+          <div class="ad-script-block">
+            <span class="ad-script-block-label">Body</span>
+            <span class="ad-script-block-text"></span>
+          </div>
+          <div class="ad-script-block cta">
+            <span class="ad-script-block-label">CTA</span>
+            <span class="ad-script-block-text"></span>
+          </div>
+        `;
+        card.querySelector('.ad-script-label').textContent = s.label || `Ad ${i + 1}`;
+        if (s.angle) card.querySelector('.ad-script-angle').textContent = s.angle;
+        const blocks = card.querySelectorAll('.ad-script-block-text');
+        blocks[0].textContent = s.hook || '';
+        blocks[1].textContent = s.body || '';
+        blocks[2].textContent = s.cta || '';
+        wrap.appendChild(card);
+      });
+      chatThread.appendChild(wrap);
+      scrollChat();
+    }
+
+    function addChips(options, onPick) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-chips';
+      options.forEach(label => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chat-chip';
+        chip.textContent = label;
+        chip.addEventListener('click', () => {
+          wrap.remove();
+          onPick(label);
+        });
+        wrap.appendChild(chip);
+      });
+      chatThread.appendChild(wrap);
+      scrollChat();
+    }
+
+    function addChoices(options, onPick) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-choices';
+      const buttons = [];
+      options.forEach(label => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chat-choice';
+        btn.innerHTML = '<span class="chat-choice-dot"></span><span class="chat-choice-text"></span>';
+        btn.querySelector('.chat-choice-text').textContent = label;
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => {
+            b.classList.add('disabled');
+            if (b === btn) b.classList.add('selected');
+          });
+          setTimeout(() => onPick(label), 280);
+        });
+        buttons.push(btn);
+        wrap.appendChild(btn);
+      });
+      chatThread.appendChild(wrap);
+      scrollChat();
+    }
+
+    function addProgressCard(step, onDone) {
+      const card = document.createElement('div');
+      card.className = 'chat-progress';
+      const total = step.totalMs || 3500;
+      card.innerHTML = `
+        <div class="chat-progress-head">
+          <div class="chat-progress-avatar"></div>
+          <div class="chat-progress-title"></div>
+        </div>
+        <div class="chat-progress-bar-wrap">
+          <div class="chat-progress-bar-fill"></div>
+        </div>
+        <div class="chat-progress-lines"></div>
+      `;
+      card.querySelector('.chat-progress-title').textContent = step.title || 'Building your plan...';
+      const fill = card.querySelector('.chat-progress-bar-fill');
+      const linesWrap = card.querySelector('.chat-progress-lines');
+
+      const lines = (step.lines || []).map(text => {
+        const row = document.createElement('div');
+        row.className = 'chat-progress-line';
+        row.innerHTML = `
+          <svg class="chat-progress-line-check" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7L6 11L12 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="chat-progress-line-text"></span>
+        `;
+        row.querySelector('.chat-progress-line-text').textContent = text;
+        linesWrap.appendChild(row);
+        return row;
+      });
+
+      chatThread.appendChild(card);
+      scrollChat();
+
+      // Bar fills in organic, varied segments (not linear) so it feels real
+      const lineCount = lines.length || 1;
+      const base = total / lineCount;
+
+      // Varied segment durations that sum to ~total
+      const rawSegs = Array.from({ length: lineCount }, () => base * (0.55 + Math.random() * 1.25));
+      const segSum = rawSegs.reduce((a, b) => a + b, 0);
+      const segs = rawSegs.map(v => v * total / segSum);
+
+      // Varied percent marks that end at 100
+      const rawGaps = Array.from({ length: lineCount }, () => 0.5 + Math.random() * 1.6);
+      const gapSum = rawGaps.reduce((a, b) => a + b, 0);
+      let acc = 0;
+      const marks = rawGaps.map(g => { acc += g / gapSum; return acc; });
+
+      let cursor = 0;
+      lines.forEach((row, i) => {
+        const startAt = cursor;
+        const endAt = cursor + segs[i];
+        cursor = endAt;
+        const targetPct = marks[i] * 100;
+
+        setTimeout(() => {
+          row.classList.add('visible');
+          fill.style.transitionTimingFunction = 'cubic-bezier(0.45, 0.05, 0.55, 0.95)';
+          fill.style.transitionDuration = segs[i] + 'ms';
+          fill.style.width = targetPct + '%';
+          scrollChat();
+        }, startAt + 60);
+
+        setTimeout(() => {
+          row.classList.add('done');
+        }, endAt);
+      });
+
+      setTimeout(() => {
+        if (typeof onDone === 'function') onDone();
+      }, total + 400);
+    }
+
+    function addRecommendation(step) {
+      const card = document.createElement('div');
+      card.className = 'chat-recommendation';
+      const bullets = (step.bullets || []).map(text => `
+        <div class="rec-bullet">
+          <span class="rec-bullet-icon">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="rec-bullet-text"></span>
+        </div>
+      `).join('');
+
+      card.innerHTML = `
+        ${step.scoreChip ? '<div class="rec-score-chip"><span class="rec-score-dot"></span><span class="rec-score-chip-text"></span></div>' : ''}
+        <div class="rec-title"></div>
+        ${step.subtitle ? '<div class="rec-subtitle"></div>' : ''}
+        ${step.videoSrc ? '<div class="rec-video-wrap"><video class="rec-video" playsinline autoplay muted loop preload="auto"></video></div>' : ''}
+        <div class="rec-chart-wrap">
+          <div class="rec-chart-row">
+            <span class="rec-chart-delta"></span>
+            <span class="rec-chart-end"></span>
+          </div>
+          <svg class="rec-chart-svg" viewBox="0 0 480 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00afd0" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#00afd0" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path class="rec-chart-area" d="M0,110 L40,108 L90,112 L140,109 L190,107 L240,100 L290,85 L340,60 L390,40 L440,22 L480,14 L480,140 L0,140 Z"/>
+            <path class="rec-chart-path" d="M0,110 L40,108 L90,112 L140,109 L190,107 L240,100 L290,85 L340,60 L390,40 L440,22 L480,14"/>
+            <circle cx="0" cy="110" r="4" fill="#ffffff" stroke="#008ba7" stroke-width="2"/>
+            <circle cx="480" cy="14" r="4" fill="#008ba7" stroke="#ffffff" stroke-width="2"/>
+          </svg>
+          <div class="rec-chart-labels">
+            <span class="rec-chart-anchor">You now</span>
+            <span>Week 12</span>
+          </div>
+        </div>
+        <div class="rec-bullets">${bullets}</div>
+        <button type="button" class="rec-cta">
+          <span class="rec-cta-label"></span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 7H11M11 7L7 3M11 7L7 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      `;
+      if (step.scoreChip) card.querySelector('.rec-score-chip-text').textContent = step.scoreChip;
+      card.querySelector('.rec-title').textContent = step.title || 'Your custom plan';
+      if (step.subtitle) card.querySelector('.rec-subtitle').textContent = step.subtitle;
+      if (step.videoSrc) {
+        const v = card.querySelector('.rec-video');
+        v.src = step.videoSrc;
+      }
+      card.querySelector('.rec-chart-delta').textContent = step.deltaLabel || '+12%';
+      card.querySelector('.rec-chart-end').textContent = step.endLabel || '12 weeks';
+      card.querySelectorAll('.rec-bullet-text').forEach((el, i) => {
+        el.textContent = (step.bullets || [])[i] || '';
+      });
+      const ctaBtn = card.querySelector('.rec-cta');
+      ctaBtn.querySelector('.rec-cta-label').textContent = step.ctaLabel || 'Start my plan';
+      if (step.ctaOpenModal) {
+        ctaBtn.addEventListener('click', openApplicationModal);
+      } else if (step.ctaHref) {
+        ctaBtn.addEventListener('click', () => {
+          window.location.href = step.ctaHref;
+        });
+      }
+      chatThread.appendChild(card);
+      scrollChat();
+    }
+
+    function scrollChat() {
+      // Intentional no-op. We never auto-scroll to the bottom.
+      // The only auto-scroll events are:
+      //   1. scrollElementToTop — pins the first AI msg after a user response to the top of the chat.
+      //   2. scrollIntoViewIfNeeded — nudges a user bubble into view if it was appended off-screen.
+      // Every other message just appends below and the viewport stays put.
+    }
+
+    let _scrollAnim = null;
+    function smoothScrollTo(target, duration) {
+      if (_scrollAnim) cancelAnimationFrame(_scrollAnim);
+      const start = contentArea.scrollTop;
+      const maxScroll = contentArea.scrollHeight - contentArea.clientHeight;
+      const clamped = Math.max(0, Math.min(target, maxScroll));
+      const delta = clamped - start;
+      if (Math.abs(delta) < 1) return;
+      const dur = duration || 600;
+      const t0 = performance.now();
+      const ease = (t) => 1 - Math.pow(1 - t, 3); // ease-out cubic
+      const step = (now) => {
+        const t = Math.min(1, (now - t0) / dur);
+        contentArea.scrollTop = start + delta * ease(t);
+        if (t < 1) _scrollAnim = requestAnimationFrame(step);
+        else _scrollAnim = null;
+      };
+      _scrollAnim = requestAnimationFrame(step);
+    }
+
+    // offsetTop walks up to contentArea since it's the only positioned ancestor in this tree
+    function offsetTopIn(el, ancestor) {
+      let y = 0;
+      let node = el;
+      while (node && node !== ancestor) {
+        y += node.offsetTop;
+        node = node.offsetParent;
+      }
+      return y;
+    }
+
+    function scrollElementToTop(el) {
+      if (!el) return;
+      requestAnimationFrame(() => {
+        const top = offsetTopIn(el, contentArea);
+        smoothScrollTo(top - 16, 650);
+      });
+    }
+
+    function scrollIntoViewIfNeeded(el) {
+      if (!el) return;
+      requestAnimationFrame(() => {
+        const elTop = offsetTopIn(el, contentArea);
+        const elBottom = elTop + el.offsetHeight;
+        const viewTop = contentArea.scrollTop;
+        const viewBottom = viewTop + contentArea.clientHeight;
+        if (elBottom > viewBottom - 24) {
+          smoothScrollTo(elBottom - contentArea.clientHeight + 32, 450);
+        } else if (elTop < viewTop + 12) {
+          smoothScrollTo(elTop - 16, 450);
+        }
+      });
+    }
+
+    // ── Task-row triggers ──
+    document.querySelectorAll('.task-row[data-task]').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-checkbox]')) return;
+        const id = row.getAttribute('data-task');
+        startTask(id);
+      });
+    });
+
+    // ── Back button ──
+    document.querySelector('.chat-back').addEventListener('click', () => {
+      setView('plan');
+      inputField.placeholder = DEFAULT_PLACEHOLDER;
+      inputField.value = '';
+      activeScript = null;
+      scriptIndex = 0;
+      awaitingInput = false;
+      inScriptedFlow = false;
+    });
+
+    // ── Input handling ──
+    function submitInput() {
+      const val = inputField.value.trim();
+      if (!val) return;
+      inputField.value = '';
+
+      if (viewChat.classList.contains('view-hidden')) return;
+
+      addUserMsg(val);
+
+      if (inScriptedFlow && awaitingInput && activeScript) {
+        awaitingInput = false;
+        scriptIndex++;
+        setTimeout(runStep, 380);
+      }
+      // else: free-form chat (tasks 2-5 or after scripted flow completes), just echoes
+    }
+
+    inputField.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitInput();
+      }
+    });
+
+    const sendBtn = document.querySelector('.input-send');
+    if (sendBtn) sendBtn.addEventListener('click', submitInput);
+
+    // ── Press-and-hold mic → fake voice transcription ──
+    const VOICE_MESSAGE = "I feel like these ads were just running so well, why did this happen?";
+    const micBtn = document.querySelector('.input-tool.mic');
+    const inputBar = document.querySelector('.input-bar');
+    let isRecording = false;
+
+    function startRecording() {
+      if (isRecording) return;
+      if (viewChat.classList.contains('view-hidden')) return;
+      isRecording = true;
+      micBtn.classList.add('recording');
+      inputBar.classList.add('recording');
+    }
+
+    function stopRecording(commit) {
+      if (!isRecording) return;
+      isRecording = false;
+      micBtn.classList.remove('recording');
+      inputBar.classList.remove('recording');
+      if (commit) {
+        inputField.value = VOICE_MESSAGE;
+        submitInput();
+      }
+    }
+
+    if (micBtn) {
+      micBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        startRecording();
+      });
+      micBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startRecording();
+      }, { passive: false });
+      window.addEventListener('mouseup', () => stopRecording(true));
+      window.addEventListener('touchend', () => stopRecording(true));
+      window.addEventListener('touchcancel', () => stopRecording(false));
+      window.addEventListener('blur', () => stopRecording(false));
+    }
+
+    // ── Application modal ──
+    function openApplicationModal() {
+      const m = document.getElementById('app-modal');
+      const ov = document.getElementById('app-modal-overlay');
+      const scroll = m && m.querySelector('.app-modal-scroll');
+      if (!m || !ov) return;
+      ov.classList.add('visible');
+      m.classList.add('visible');
+      if (scroll) scroll.scrollTop = 0;
+    }
+    function closeApplicationModal() {
+      const m = document.getElementById('app-modal');
+      const ov = document.getElementById('app-modal-overlay');
+      if (!m || !ov) return;
+      ov.classList.remove('visible');
+      m.classList.remove('visible');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const ov = document.getElementById('app-modal-overlay');
+      if (ov) ov.addEventListener('click', closeApplicationModal);
+      const closeBtn = document.querySelector('.app-modal-close');
+      if (closeBtn) closeBtn.addEventListener('click', closeApplicationModal);
+
+      document.querySelectorAll('.app-faq-q').forEach(q => {
+        q.addEventListener('click', () => q.closest('.app-faq-item').classList.toggle('open'));
+      });
+
+      const submitBtn = document.querySelector('.app-submit');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          submitBtn.textContent = 'Submitted. Lucas will reach out in 24 hours ✓';
+          submitBtn.disabled = true;
+        });
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const m = document.getElementById('app-modal');
+      if (m && m.classList.contains('visible')) closeApplicationModal();
+    });
+  </script>
+
+  <!-- Application modal -->
+  <div class="app-modal-overlay" id="app-modal-overlay"></div>
+  <div class="app-modal" id="app-modal" role="dialog" aria-modal="true">
+    <button type="button" class="app-modal-close" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="app-modal-scroll">
+
+      <div class="app-hero">
+        <span class="app-eyebrow">Lucas AI recommends</span>
+        <h2 class="app-title">Your 30 Day Ad Refresh Plan</h2>
+        <p class="app-lede">Stop watching your winners fatigue in slow motion. Get a done-with-you 90-day creative system that keeps your CPL predictable, your pipeline full, and your ad account compounding — without you grinding out new content every week.</p>
+      </div>
+
+      <div class="app-video-wrap">
+        <video class="app-video" src="lucas-ai-1.mp4" playsinline autoplay muted loop preload="auto"></video>
+      </div>
+
+      <div class="app-block">
+        <h3 class="app-h3">If one of these sounds like your last 30 days, this plan is built for you.</h3>
+        <ul class="app-pain">
+          <li><strong>Your CPL used to be $25, now it's $45.</strong> Same offer. Same audience. The ads just stopped working as hard.</li>
+          <li><strong>You've launched 4 new creatives this month and none beat your old winner.</strong> Running out of ideas and patience.</li>
+          <li><strong>Every time you push spend, CPL breaks.</strong> Stuck between $3K and $5K/mo — not because the offer can't handle more, but because the creatives can't.</li>
+          <li><strong>You dread opening the ad account on Monday.</strong> Can't tell if it's a normal dip or the start of a death spiral.</li>
+          <li><strong>You know you need a system, not another creative sprint.</strong></li>
+        </ul>
+      </div>
+
+      <div class="app-product">
+        <span class="app-product-badge">Recommended for you</span>
+        <h3 class="app-product-title">The Ad Refresh Plan — 90 Days</h3>
+        <p class="app-product-sub">A done-with-you creative system: diagnosis, 3 fresh angles, scripts, cadence, fatigue monitor, and weekly strategy calls — built around your ad account.</p>
+        <ul class="app-product-list">
+          <li>Full account fatigue audit (48 hours)</li>
+          <li>3 fresh creative angles, fully scripted</li>
+          <li>12-week rotation &amp; refresh calendar</li>
+          <li>Automated weekly fatigue monitor</li>
+          <li>12 weekly strategy calls with Lucas</li>
+          <li>Private Slack channel for async questions</li>
+        </ul>
+      </div>
+
+      <div class="app-block">
+        <h3 class="app-h3">Common questions, answered</h3>
+        <div class="app-faq">
+          <div class="app-faq-item">
+            <div class="app-faq-q">
+              <span>Can't I just figure this out by launching more creatives?</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="app-faq-a">You can — most coaches do. The problem isn't volume, it's signal. Without a diagnosis of which ads are fatigued, which are stable, and which angles have room to run, you're throwing creative at a wall. The plan replaces guesswork with a structured rotation calendar built from your actual winners and audience response patterns.</div>
+          </div>
+          <div class="app-faq-item">
+            <div class="app-faq-q">
+              <span>My ad account is small — is this worth it?</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="app-faq-a">Built for coaches and agencies spending $3K to $50K/month. Smaller accounts often see CPL improvements faster because every dollar counts more. If you're under $2K/month, we'll tell you on the strategy call.</div>
+          </div>
+          <div class="app-faq-item">
+            <div class="app-faq-q">
+              <span>How long until my CPL actually drops?</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="app-faq-a">Most accounts see measurable CPL improvement within 3–5 weeks once the first new angles are live and out of the learning phase. The bigger win — scaling without CPL breaking — typically lands between weeks 6 and 10.</div>
+          </div>
+          <div class="app-faq-item">
+            <div class="app-faq-q">
+              <span>Is this just Lucas AI doing everything automatically?</span>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="app-faq-a">No. Lucas AI handles analysis, angle generation, fatigue scoring, and weekly monitoring. Lucas (the human) shows up weekly to review your account and make judgment calls the AI can't. It's a hybrid by design.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="app-block">
+        <h3 class="app-h3">What coaches are saying</h3>
+        <div class="app-review">
+          <div class="app-review-stars">★★★★★</div>
+          <p class="app-review-text">"Our CPL was creeping from $31 to $47 over two months and I honestly didn't know what to do. After the first refresh cycle with Lucas we were at $22. We scaled from $4K to $11K/mo without CPL moving. First time in 3 years I've felt calm about ads."</p>
+          <span class="app-review-author">— Sandra K., mindset coach</span>
+        </div>
+        <div class="app-review">
+          <div class="app-review-stars">★★★★★</div>
+          <p class="app-review-text">"I was launching 3 new creatives a week and burnt out. The refresh plan gave me 3 angles that actually rotate. Went from 4–5 production days a month to maybe 1. My winning ad just crossed day 61 — the plan told me exactly when to freshen the hook, not rebuild the whole thing."</p>
+          <span class="app-review-author">— Marcus T., fitness coach</span>
+        </div>
+      </div>
+
+      <form class="app-form" onsubmit="return false;">
+        <h3 class="app-form-title">Book Your 1-On-1 Consultation Now</h3>
+        <p class="app-form-sub">Complete the form and Lucas will personally review your account in the next 24 hours. If it's a fit, we'll send you a strategy-call link.</p>
+
+        <div class="app-form-row two">
+          <div class="app-form-group">
+            <label class="app-form-label">First name</label>
+            <input class="app-form-input" type="text" placeholder="Your first name">
+          </div>
+          <div class="app-form-group">
+            <label class="app-form-label">Last name</label>
+            <input class="app-form-input" type="text" placeholder="Your last name">
+          </div>
+        </div>
+
+        <div class="app-form-group">
+          <label class="app-form-label">Email</label>
+          <input class="app-form-input" type="email" placeholder="you@example.com">
+        </div>
+
+        <div class="app-form-group">
+          <label class="app-form-label">What best describes your business?</label>
+          <select class="app-form-select">
+            <option value="" disabled selected>Select one...</option>
+            <option>1:1 coach / consultant</option>
+            <option>Group program / cohort</option>
+            <option>Course creator</option>
+            <option>Agency running client ads</option>
+            <option>Service business (local or B2B)</option>
+            <option>Something else</option>
+          </select>
+        </div>
+
+        <div class="app-form-group">
+          <label class="app-form-label">Current monthly ad spend on Meta</label>
+          <select class="app-form-select">
+            <option value="" disabled selected>Select a range...</option>
+            <option>Under $2K / month</option>
+            <option>$2K – $5K / month</option>
+            <option>$5K – $10K / month</option>
+            <option>$10K – $25K / month</option>
+            <option>$25K – $50K / month</option>
+            <option>$50K+ / month</option>
+          </select>
+        </div>
+
+        <div class="app-form-group">
+          <label class="app-form-label">What's happening with your ads right now?</label>
+          <textarea class="app-form-textarea" placeholder="e.g. CPL doubled over the last 8 weeks and I can't figure out which ad is dragging the set down..."></textarea>
+        </div>
+
+        <div class="app-form-group">
+          <label class="app-form-label">What would a win look like in the next 90 days?</label>
+          <textarea class="app-form-textarea" placeholder="e.g. CPL back under $30, scale spend to $15K without it breaking, 3 reliable new winners in rotation."></textarea>
+        </div>
+
+        <button type="submit" class="app-submit">Submit Application &amp; Book My Strategy Call</button>
+        <div class="app-secure">
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M3.5 6V4.5C3.5 2.3 5.3 0.5 7 0.5C8.7 0.5 10.5 2.3 10.5 4.5V6M2.5 6H11.5C12.1 6 12.5 6.4 12.5 7V12.5C12.5 13.1 12.1 13.5 11.5 13.5H2.5C1.9 13.5 1.5 13.1 1.5 12.5V7C1.5 6.4 1.9 6 2.5 6Z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+          <span>Your information is private and secure</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
