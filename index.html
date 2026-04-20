@@ -1689,7 +1689,8 @@
     .app-modal {
       position: fixed;
       top: 50%;
-      left: 50%;
+      /* Offset right by half of the visually-scaled sidebar so the modal centers within the main content area (matches the input bar) */
+      left: calc(50% + clamp(144px, 13.8vw, 201.6px));
       transform: translate(-50%, -50%) scale(0.96);
       width: min(760px, 92vw);
       max-height: 88vh;
